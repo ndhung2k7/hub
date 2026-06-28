@@ -1,20 +1,63 @@
 @echo off
-title Fix Video Splitter
-color 0E
+echo Tao toan bo project Video Splitter...
 
-echo ========================================
-echo   SUA LOI VA CHAY VIDEO SPLITTER
-echo ========================================
-echo.
-
-REM Xóa file main.py cũ nếu có
-if exist main.py (
-    echo Dang xoa main.py cu...
-    del main.py
+REM Xóa project cũ nếu có
+if exist VideoSplitter_new (
+    rmdir /s /q VideoSplitter_new
 )
 
-REM Tạo main.py mới
-echo Dang tao main.py moi...
+mkdir VideoSplitter_new
+cd VideoSplitter_new
+
+REM Tạo cấu trúc thư mục
+mkdir gui core video player utils log config resources
+
+REM Tạo các file __init__.py
+echo # GUI package > gui\__init__.py
+echo # Core package > core\__init__.py
+echo # Video package > video\__init__.py
+echo # Player package > player\__init__.py
+echo # Utils package > utils\__init__.py
+echo # Log package > log\__init__.py
+echo # Config package > config\__init__.py
+
+REM Tạo file utils\file_utils.py
+(
+echo import os
+echo import subprocess
+echo import shutil
+echo from pathlib import Path
+echo from typing import Optional
+echo.
+echo def ensure_ffmpeg() -> Optional[str]:
+echo     ffmpeg_path = shutil.which('ffmpeg')
+echo     if ffmpeg_path:
+echo         return ffmpeg_path
+echo     local_ffmpeg = Path('ffmpeg.exe')
+echo     if local_ffmpeg.exists():
+echo         return str(local_ffmpeg)
+echo     resources_ffmpeg = Path('resources/ffmpeg.exe')
+echo     if resources_ffmpeg.exists():
+echo         return str(resources_ffmpeg)
+echo     return None
+echo.
+echo def get_file_size(file_path: str) -> str:
+echo     try:
+echo         size = os.path.getsize(file_path)
+echo         for unit in ['B', 'KB', 'MB', 'GB']:
+echo             if size < 1024.0:
+echo                 return f"{size:.1f} {unit}"
+echo             size /= 1024.0
+echo         return f"{size:.1f} TB"
+echo     except:
+echo         return "0 B"
+) > utils\file_utils.py
+
+REM Tạo requirements.txt
+echo PySide6==6.6.0 > requirements.txt
+echo pyinstaller==6.3.0 >> requirements.txt
+
+REM Tạo main.py
 (
 echo import sys
 echo import os
@@ -43,19 +86,11 @@ echo if __name__ == '__main__':
 echo     sys.exit(main())
 ) > main.py
 
-echo [OK] Da tao main.py moi
 echo.
-
-REM Kiểm tra thư mục utils
-if not exist "utils\file_utils.py" (
-    echo [WARNING] Khong tim thay utils\file_utils.py
-    echo Ban can copy toan bo source code vao day!
-)
-
+echo [OK] Project da duoc tao tai: %cd%
 echo.
-echo Dang chay Video Splitter...
-echo ========================================
-echo.
-python main.py
-
+echo Tiep theo:
+echo 1. Copy cac file khac (gui, core, video, player) vao day
+echo 2. Chay: pip install -r requirements.txt
+echo 3. Chay: python main.py
 pause
